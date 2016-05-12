@@ -36,14 +36,7 @@ exports.handleRequest = function (request, response) {
         response.end();
       }
       if (request.url === '/') {
-        console.log('lookup is', lookup);
-        console.log('f is', f);
-        console.log(request.method);
-        console.log(request.url);
-        console.log(head.headers);
-        response.writeHead(200, headers);
-        console.log(data);
-        
+        response.writeHead(200, headers);        
         response.end(data);
         //response.write(data);
       } 
@@ -62,7 +55,7 @@ exports.handleRequest = function (request, response) {
       console.log('writeFile path is ', __dirname + '/archives/sites.txt');
       urlList += data.slice(4) + '\n';
 
-      fs.writeFile(archive.paths.list, urlList, function(err) {
+      fs.appendFile(archive.paths.list, urlList + '\n', function(err) {
 
         response.end();
       });
