@@ -19,39 +19,41 @@ exports.handleRequest = function (request, response) {
   var lookup = path.basename(decodeURI(request.url)) || 'index.html';
 
   var f = __dirname + '/public/' + lookup;
-  fs.readFile(f, 'utf8', function (err, data) {
+  if (request.method === 'GET') {
+    fs.readFile(f, 'utf8', function (err, data) {
 
-    if (data) {
-      var headers = {'Content-type': mimeTypes[path.extname(lookup)]};
-      response.writeHead(200, headers);
-      //console.log(data);
-      response.end(data);
-      if (err) { 
-        response.writeHead(500); 
-        response.end('Server Error!'); 
+      if (data) {
+        var headers = {'Content-type': mimeTypes[path.extname(lookup)]};
+        response.writeHead(200, headers);
+        //console.log(data);
+        response.end(data);
+        if (err) { 
+          response.writeHead(500); 
+          response.end('Server Error!'); 
+        }
+      } else {
+        response.writeHead(404); //no such file found!
+        response.end();
       }
-    } else {
-      response.writeHead(404); //no such file found!
-      response.end();
-    }
-    if (request.method === 'GET' && request.url === '/') {
-      console.log('lookup is', lookup);
-      console.log('f is', f);
-      console.log(request.method);
-      console.log(request.url);
-      console.log(head.headers);
-      response.writeHead(200, headers);
-      console.log(data);
-      
-      response.end(data);
-      //response.write(data);
-    } 
-
-  });
+      if (request.url === '/') {
+        console.log('lookup is', lookup);
+        console.log('f is', f);
+        console.log(request.method);
+        console.log(request.url);
+        console.log(head.headers);
+        response.writeHead(200, headers);
+        console.log(data);
+        
+        response.end(data);
+        //response.write(data);
+      } 
+    });
+  }
   if (request.method === 'POST' && request.url === '/') {
     var data = '';
     var urlList = '';
     response.writeHead(302, head.headers);
+    //console.log(response);
     request.on('data', function(chunk) {
       data += chunk;
     });
@@ -60,7 +62,7 @@ exports.handleRequest = function (request, response) {
       console.log('writeFile path is ', __dirname + '/archives/sites.txt');
       urlList += data.slice(4) + '\n';
 
-      fs.writeFile( __dirname + '/archives/sites.txt', urlList, function(err) {
+      fs.writeFile(archive.paths.list, urlList, function(err) {
 
         response.end();
       });
