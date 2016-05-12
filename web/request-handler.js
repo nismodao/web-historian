@@ -7,9 +7,9 @@ var head = require('./http-helpers');
 
 
 var mimeTypes = {                 
-  '.js' : 'text/javascript',
+  '.js': 'text/javascript',
   '.html': 'text/html',
-  ' .css' : 'text/css'
+  ' .css': 'text/css'
 };
 
 
@@ -17,14 +17,12 @@ var mimeTypes = {
 exports.handleRequest = function (request, response) {
 
   var lookup = path.basename(decodeURI(request.url)) || 'index.html';
-  //var lookup = request.url;
 
   var f = __dirname + '/public/' + lookup;
-  console.log("dirname is ", __dirname);
   fs.readFile(f, 'utf8', function (err, data) {
 
     if (data) {
-    var headers = {'Content-type': mimeTypes[path.extname(lookup)]};
+      var headers = {'Content-type': mimeTypes[path.extname(lookup)]};
       response.writeHead(200, headers);
       //console.log(data);
       response.end(data);
@@ -37,8 +35,8 @@ exports.handleRequest = function (request, response) {
       response.end();
     }
     if (request.method === 'GET' && request.url === '/') {
-      console.log("lookup is", lookup);
-      console.log("f is", f);
+      console.log('lookup is', lookup);
+      console.log('f is', f);
       console.log(request.method);
       console.log(request.url);
       console.log(head.headers);
@@ -47,11 +45,27 @@ exports.handleRequest = function (request, response) {
       
       response.end(data);
       //response.write(data);
-
-    }
+    } 
 
   });
+  if (request.method === 'POST' && request.url === '/') {
+    var data = '';
+    var urlList = '';
+    response.writeHead(302, head.headers);
+    request.on('data', function(chunk) {
+      data += chunk;
+    });
+    request.on('end', function() {
+      console.log('Upon end data', data);
+      console.log('writeFile path is ', __dirname + '/archives/sites.txt');
+      urlList += data.slice(4) + '\n';
 
+      fs.writeFile( __dirname + '/archives/sites.txt', urlList, function(err) {
+
+        response.end();
+      });
+    });
+  }
 };
 
 
