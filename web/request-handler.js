@@ -1,5 +1,6 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
+var request = require('request');
 
 // require more modules/folders here!
 var fs = require('fs');
@@ -53,7 +54,7 @@ exports.handleRequest = function (request, response) {
     request.on('end', function() {
       urlList += data.slice(4);
       console.log('Upon end data', urlList);
-      fs.writeFile(archive.paths.list, urlList, function(err) {
+      fs.appendFile(archive.paths.list, urlList + '\n', function(err) {
         archive.isUrlArchived(urlList, function(bool) { 
           //console.log('Result is', result);
           if (bool) {
@@ -82,9 +83,35 @@ exports.handleRequest = function (request, response) {
     });
   }
 
+};
+                        
+//find path into sites.txt
+var webScraper = function () {
+  archive.readListOfUrls(function(urlArr) {
+    //this creates the files for each url
+    urlArr.pop();
+    archive.downloadUrls(urlArr);
 
+    urlArr.forEach(function(domain) {
+      
+      request ({
+        uri: 'http://' + domain,
+      }, function (err, res, body) {
+        //add body to the site's html file
+        //if domain matches the archive sites files, write the body into that file
+        fs.writeFile(archive.paths.archivedSites + '/' + domain, body, function (err) {
+
+        });                                                     
+      });
+
+    });
+  });
 };
 
+webScraper();
+
+//iterate through the urls in sites
+//create the files and web scrape the data for each site                                                                                                                    
 
       
  // response.writeHead(302, {
