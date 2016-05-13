@@ -54,9 +54,7 @@ exports.handleRequest = function (request, response) {
       console.log('Upon end data', data);
       console.log('writeFile path is ', __dirname + '/archives/sites.txt');
       urlList += data.slice(4) + '\n';
-
-      fs.appendFile(archive.paths.list, urlList + '\n', function(err) {
-
+      fs.writeFile(archive.paths.list, urlList, function(err) {
         response.end();
       });
     });
@@ -65,7 +63,9 @@ exports.handleRequest = function (request, response) {
 
 
       
-
+ // response.writeHead(302, {
+ //      'Location': 'http://127.0.0.1:8080/loading.html'
+ //    });
 
   // fs.exists(f, function (exists) {
   //   if (exists) {
